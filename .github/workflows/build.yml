@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     tags: ["v*"]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -21,7 +22,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Resolve pnpm store path
+        id: pnpm-store-path
+        run: |
+          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
       - name: Setup Docker Buildx
+        id: setup-buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Container Registry
@@ -45,12 +55,34 @@ jobs:
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
 
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ${{ steps.pnpm-store-path.outputs.PNPM_STORE_PATH }}
+            ${{ github.workspace }}/.next/cache
+          # Generate a new cache whenever packages or source files change.
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.json') }}-
+
+      - name: Restore Docker cache mounts
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          builder: ${{ steps.setup-buildx.outputs.name }}
+          dockerfile: Dockerfile
+          cache-map: |
+            {
+              "${{ steps.pnpm-store-path.outputs.PNPM_STORE_PATH }}": "/pnpm/store",
+              "${{ github.workspace }}/.next/cache": "${{ github.workspace }}/.next/cache"
+            }
+
       - name: Build and push container image
         id: push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -58,29 +90,3 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-
-  #   outputs:
-  #     digest: ${{ steps.push.outputs.digest }}
-
-  # deploy:
-  #   name: Deploy to Portainer
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   permissions:
-  #     contents: write
-
-  #   steps:
-  #     - name: Checkout gitops repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         repository: toto04/nayru-cd
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-
-  #     - name: Update image tag in gitops repo
-  #       run: |
-  #         sed -i "s|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:${{ needs.build.outputs.digest }} # Updated automatically by CI|" docker-compose.yml
-
-  #     - name: Commit & Push changes
-  #       uses: actions-js/push@master
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,5 +1,11 @@
 import { nanoid } from "nanoid"
-import { getPool, type UrlRecord } from "./db"
+import { getPool } from "./db"
+import {
+  type GetUrlsQueryParams,
+  type PaginatedUrlsResponse,
+  URLRecords,
+  type UrlRecord,
+} from "./schemas"
 
 export class UrlService {
   private pool = getPool()
@@ -9,6 +15,7 @@ export class UrlService {
     customShortCode?: string
   ): Promise<UrlRecord> {
     let shortCode: string
+    let isCustom = true
 
     if (customShortCode) {
       // Check if custom short code already exists
@@ -22,15 +29,20 @@ export class UrlService {
     } else {
       // Generate a unique short code
       shortCode = nanoid(8)
+      isCustom = false
     }
 
     const query = `
-      INSERT INTO urls (original_url, short_code)
-      VALUES ($1, $2)
+      INSERT INTO urls (original_url, short_code, is_custom)
+      VALUES ($1, $2, $3)
       RETURNING *
     `
 
-    const result = await this.pool.query(query, [originalUrl, shortCode])
+    const result = await this.pool.query(query, [
+      originalUrl,
+      shortCode,
+      isCustom,
+    ])
     return result.rows[0]
   }
 
@@ -41,10 +53,61 @@ export class UrlService {
     return result.rows[0] || null
   }
 
-  async getAllUrls(): Promise<UrlRecord[]> {
-    const query = "SELECT * FROM urls ORDER BY created_at DESC"
-    const result = await this.pool.query(query)
-    return result.rows
+  async getAllUrls(
+    options: Partial<GetUrlsQueryParams>
+  ): Promise<PaginatedUrlsResponse> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      sortBy = "created_at",
+      customOnly = false,
+      sortOrder = "desc",
+    } = options
+
+    const sb = [
+      "created_at",
+      "updated_at",
+      "click_count",
+      "short_code",
+    ].includes(sortBy)
+      ? sortBy
+      : "created_at"
+
+    const offset = (page - 1) * limit
+    const queryParams = [!search, `%${search}%`, !customOnly, limit, offset]
+
+    const [dataResult, totals] = await Promise.all([
+      this.pool.query(
+        `
+          SELECT * FROM urls 
+          WHERE ($1 OR (original_url ILIKE $2 OR short_code ILIKE $2)) AND ($3 OR is_custom = TRUE)
+          ORDER BY ${sb} ${sortOrder === "asc" ? "ASC" : "DESC"}
+          LIMIT $4 OFFSET $5
+        `,
+        queryParams
+      ),
+      this.pool.query(
+        `
+          SELECT COUNT(*) FROM urls 
+          WHERE ($1 OR (original_url ILIKE $2 OR short_code ILIKE $2)) AND ($3 OR is_custom = TRUE)
+        `,
+        queryParams.slice(0, 3)
+      ),
+    ])
+
+    const total = parseInt(totals.rows[0].count, 10)
+    const urls = URLRecords.parse(dataResult.rows)
+
+    return {
+      urls,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    }
   }
 
   async updateUrl(
