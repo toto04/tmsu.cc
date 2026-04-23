@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 
 export const metadata: Metadata = {
-  title: "PoliNetwork Short URLs",
-  description: "polinetwork.org, but shorter.",
+  title: "Tommaso Morganti Short URLs",
+  description: "tommasomorganti.com, but shorter.",
 }
 
 export default function RootLayout({

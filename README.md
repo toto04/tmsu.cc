@@ -1,10 +1,10 @@
-# polinet.cc - URL Shortener
+# tmsu.cc - URL Shortener
 
-A Next.js URL shortener application for polinetwork.org domains.
+A Next.js URL shortener application for tommasomorganti.com domains.
 
 ## Features
 
-- 🔗 **URL Shortening**: Create short URLs for any polinetwork.org subdomain
+- 🔗 **URL Shortening**: Create short URLs for any tommasomorganti.com subdomain
 - 📊 **Dashboard**: Web interface to manage all shortened URLs
 - 🚀 **RESTful API**: Programmatic access for other services
 - 📈 **Click Tracking**: Monitor usage of your shortened URLs

@@ -19,7 +19,7 @@ const openapiDocument = generateOpenApi(contract, {
   info: {
     title: `${env.DOMAIN} API`,
     version: "1.0.0",
-    description: "PoliNetwork's Short URLs - Service API",
+    description: "Tommaso Morganti's Short URLs - Service API",
   },
   servers: [{ url: `https://${env.DOMAIN}/api` }],
   components: {

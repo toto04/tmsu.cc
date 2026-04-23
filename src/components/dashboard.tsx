@@ -119,19 +119,18 @@ export function Dashboard() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between gap-4 items-center max-md:flex-col">
         <div className="flex items-center gap-4">
-          <Image src={logo} alt="PoliNetwork Logo" className="h-16 w-16" />
           <div className="gap-2">
             <h1 className="text-3xl font-bold">{env.NEXT_PUBLIC_DOMAIN}</h1>
             <p className="text-muted-foreground max-md:text-sm">
-              PoliNetwork's URL shortener dashboard
+              Tommaso Morganti's URL shortener dashboard
             </p>
           </div>
         </div>
         <div className="flex justify-end gap-4 max-md:gap-2 flex-wrap">
           <a
-            href="https://github.com/PoliNetworkOrg/polinet.cc"
+            href="https://github.com/toto04/tmsu.cc"
             className="underline flex items-center gap-1"
-            title="https://github.com/PoliNetworkOrg/polinet.cc"
+            title="https://github.com/toto04/tmsu.cc - GitHub repository of Tommaso Morganti's URL shortener"
             aria-label="tmsu.cc github repository by Tommaso Morganti"
             target="_blank"
             rel="noopener noreferrer"
@@ -272,12 +271,12 @@ export function Dashboard() {
         <p className="text-muted-foreground text-sm">
           Made with 💙 by{" "}
           <a
-            href="https://polinetwork.org"
+            href="https://tommasomorganti.com"
             target="_blank"
             rel="noreferrer noopener"
             className="underline underline-offset-2"
           >
-            PoliNetwork
+            Tommaso Morganti
           </a>
         </p>
       </div>

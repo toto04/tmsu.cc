@@ -128,7 +128,7 @@ export function QrCodeDialog({ open, url, onOpenChange }: QrCodeDialogProps) {
           <a
             href={downloadUrl ?? undefined}
             download={
-              downloadUrl ? `polinet-qr-${url.short_code}.png` : undefined
+              downloadUrl ? `tmsucc-qr-${url.short_code}.png` : undefined
             }
           >
             <Button className="w-full" disabled={!downloadUrl}>

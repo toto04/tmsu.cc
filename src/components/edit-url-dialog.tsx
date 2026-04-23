@@ -105,7 +105,7 @@ export function EditUrlDialog({
                 </Label>
                 <Input
                   {...getInputProps(fields.url, { type: "url" })}
-                  placeholder="https://example.polinetwork.org/path"
+                  placeholder="https://example.tommasomorganti.com/path"
                   className="col-span-3"
                 />
               </div>
