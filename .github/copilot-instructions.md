@@ -1,8 +1,8 @@
-# TMSU.cc AI Coding Instructions
+# tmsu.cc AI Coding Instructions
 
 ## Project Overview
 
-TMSU.cc is a specialized URL shortener for the tommasomorganti.com domain ecosystem. It uses Next.js 15 with App Router, PostgreSQL, and follows a contract-first API design pattern using ts-rest.
+tmsu.cc is a specialized URL shortener for the tommasomorganti.com domain ecosystem. It uses Next.js 15 with App Router, PostgreSQL, and follows a contract-first API design pattern using ts-rest.
 
 ## Architecture Patterns
 
@@ -12,14 +12,11 @@ TMSU.cc is a specialized URL shortener for the tommasomorganti.com domain ecosys
 - API handlers in `src/app/api/[...ts-rest]/route.ts` implement the contract using `createNextHandler`
 - OpenAPI documentation is auto-generated from the contract at `/api/openapi.json`
 
-### Domain Restrictions
-**Critical**: URLs are restricted to `*.tommasomorganti.com` or `tommasomorganti.com` domains only. This validation is enforced in `src/lib/validations.ts` using Zod refinement.
-
 ### Database Patterns
 - Uses PostgreSQL with raw SQL queries (no ORM)
 - Connection pooling via `pg.Pool` singleton in `src/lib/db.ts`
 - Database schema auto-initializes on startup
-- All database types are Zod schemas exported from `src/lib/db.ts`
+- All database types are Zod schemas exported from `src/lib/schemas.ts`
 - Service layer in `src/lib/url-service.ts` handles all database operations
 
 ### URL Generation & Redirection
@@ -68,7 +65,7 @@ urls (id SERIAL, original_url TEXT, short_code VARCHAR(10) UNIQUE,
 
 - Environment: `DATABASE_URL` for PostgreSQL connection
 - Port: Always use 6111 for development
-- Short codes: Always 8 characters, generated with nanoid
+- Short codes: Automatically generated 8 characters with nanoid, otherwise user set
 - Error responses: `{ error: string }` format
 - File organization: `/lib` for business logic, `/components` for UI, `/app` for routes
 - API base path: `/api` (configured in ts-rest handler)

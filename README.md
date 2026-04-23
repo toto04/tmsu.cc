@@ -1,4 +1,4 @@
-# TMSU.CC - URL Shortener
+# tmsu.cc - URL Shortener
 
 A Next.js URL shortener application for tommasomorganti.com domains.
 

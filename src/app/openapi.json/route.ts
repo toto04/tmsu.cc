@@ -1,5 +1,6 @@
 // import convert from "@openapi-contrib/json-schema-to-openapi-schema"
 import { generateOpenApi } from "@ts-rest/open-api"
+import { env } from "@/env"
 // import z from "zod"
 import { contract } from "@/lib/contract"
 
@@ -16,11 +17,11 @@ import { contract } from "@/lib/contract"
 
 const openapiDocument = generateOpenApi(contract, {
   info: {
-    title: "TMSU.cc API",
+    title: `${env.DOMAIN} API`,
     version: "1.0.0",
     description: "Tommaso Morganti's Short URLs - Service API",
   },
-  servers: [{ url: "https://tmsu.cc/api" }],
+  servers: [{ url: `https://${env.DOMAIN}/api` }],
   components: {
     securitySchemes: {
       CloudflareID: {

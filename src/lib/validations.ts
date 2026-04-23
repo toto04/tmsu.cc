@@ -1,23 +1,10 @@
 import { z } from "zod"
 
 export const createUrlSchema = z.object({
-  url: z
-    .string()
-    .url("Invalid URL format")
-    .refine((url) => {
-      try {
-        const urlObj = new URL(url)
-        return (
-          urlObj.hostname.endsWith(".tommasomorganti.com") ||
-          urlObj.hostname === "tommasomorganti.com"
-        )
-      } catch {
-        return false
-      }
-    }, "URL must be from tommasomorganti.com domain"),
+  url: z.string().url("Invalid URL format"),
   shortCode: z
     .string()
-    .min(3, "Short code must be at least 3 characters")
+    .min(2, "Short code must be at least 3 characters")
     .max(20, "Short code must be at most 20 characters")
     .regex(
       /^[a-zA-Z0-9_-]+$/,
@@ -27,3 +14,11 @@ export const createUrlSchema = z.object({
 })
 
 export type CreateUrlInput = z.infer<typeof createUrlSchema>
+
+export const editUrlSchema = createUrlSchema.extend({
+  shortCode: z
+    .string()
+    .min(2)
+    .max(20)
+    .regex(/^[a-zA-Z0-9_-]+$/),
+})
